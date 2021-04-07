@@ -58,3 +58,89 @@ end
 
 puts "Got it! It was #{random_number}"
 ```
+
+### Day 2 Self-Study
+
+Find:
+- Find out how to access files with and without code blocks. What is the benefit of the code block?
+```ruby
+
+File.open(filename, mode="r" [, opt]) → file
+File.open(filename, mode="r" [, opt]) {|file| block } → obj
+
+
+without code blocks:
+file = File.open('filename.ext', 'w')
+file.write('some content')
+file.close
+
+with code blocks:
+File.open('filename.ext', 'w') { |file| file.write('some content')}
+```
+> The use of code block  allows the user to not have to manually close the file object.
+
+- How would you translate a hash to an array? Can you translate arrays to hashes?
+```ruby
+array = [:a, :b, :c]
+hash = array.each.with_index.inject({}) do |memo, (element, index)|
+  memo[index] = element
+  memo
+end
+```
+> Set array's indexes as hash keys.
+
+- Can you iterate through a hash?
+```ruby
+{ a: 1, b: 2, c: 3 }.map { |key, value| [key, value] }
+```
+
+- You can use Ruby arrays as stacks. What other common data structures do arrays support?
+> Lists, sets, queues and binary trees.
+
+Do: 
+- Print the contents of an array of sixteen numbers, four numbers at a time, using just each. Now, do the same with each_slice in Enumerable.
+```ruby
+array = (1..16).to_a
+index = 0
+slice_size = 4
+slice_index = 0
+slices = []
+array.each.do |n|
+  slices[slice_index] ||= []
+  slices[slice_index].push(n)
+  if ((index + 1) % slice_size) == 0
+    slice_index += 1
+  end
+  index += 1
+end
+slices.each { |slice| p slice}
+
+Using Enumerator's each_slice:
+array = (1..16).to_a
+array.each.slice(4) { |slice| p slice }
+```
+
+- The Tree class was interesting, but it did not allow you to specify a new tree with a clean user interface. Let the initializer accept a nested structure with hashes and arrays. You should be able to specify a tree like this: {’grandpa’ => {’ dad’ => {’child 1’ => {}, ’child 2’ => {} }, ’uncle’ => {’child 3’ => {}, ’child 4’ => {} } } }.
+```ruby
+class Tree 
+  attr_accessor :node_name, :children
+
+  def initialize(tree_hash)
+    @node_name = tree_hash.keys.first
+    @children = tree_hash.values.first.map do |name, children| 
+                  child_tree_hash = {}
+                  child_tree_hash[name] = children
+                  Tree.new(child_tree_hash)
+                end
+    end
+end
+```
+
+- Write a simple grep that will print the lines of a file having any occurrences of a phrase anywhere in that line. You will need to do a simple regular expression match and read lines from a file. (This is surprisingly simple in Ruby.) If you want, include line numbers.
+```ruby
+def grep(file_name, pattern)
+  File.read(file_name).each_line.with_index do |line, index|
+    puts "#{index} #{line}" if line.match(pattern)
+  end
+end
+```
